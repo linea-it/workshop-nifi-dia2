@@ -1,0 +1,66 @@
+services:
+    nifi:
+        hostname: workshop-nifi-dia2
+        container_name: workshop-nifi-dia2-container        
+        build:
+            context: . 
+        ports:
+             - "8443:8443"
+        volumes:
+           - nifi_conf:/opt/nifi/nifi-current/conf
+           - nifi_state:/opt/nifi/nifi-current/state
+           - nifi_logs:/opt/nifi/nifi-current/logs
+           - nifi_database_repository:/opt/nifi/nifi-current/database_repository
+           - nifi_flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
+           - nifi_content_repository:/opt/nifi/nifi-current/content_repository
+           - nifi_provenance_repository:/opt/nifi/nifi-current/provenance_repository
+           - nifi_nar:/opt/nifi/nifi-current/nar_extensions
+           # Diretório para manipulação de arquivos em geral
+           - ./nifi/files:/opt/nifi/nifi-current/files
+           # Diretório para arquivos JDBC paraconexões com bancos de dados
+           - ./nifi/jdbc:/opt/nifi/nifi-current/jdbc
+           # Diretório com arquivo que contém as bibliotecas em Python
+           - ./nifi/python_requeriments:/opt/nifi/nifi-current/python_requeriments
+           # Diretório de scripts Python
+           - ./nifi/python_scripts:/opt/nifi/nifi-current/python_scripts
+           # Diretório dos PROCESSORs criados em Python
+           - ./nifi/python_extensions:/opt/nifi/nifi-current/python_extensions
+        environment:
+            - NIFI_CLUSTER_IS_NODE=false
+            - SINGLE_USER_CREDENTIALS_USERNAME=${SINGLE_USER_CREDENTIALS_USERNAME}
+            - SINGLE_USER_CREDENTIALS_PASSWORD=${SINGLE_USER_CREDENTIALS_PASSWORD}
+            - NIFI_JVM_HEAP_INIT=4g
+            - NIFI_JVM_HEAP_MAX=8g
+            - TZ=America/Sao_Paulo
+    postgres:
+        hostname: workshop-nifi-dia2-postgres
+        container_name: workshop-nifi-2-postgres-container
+        image: postgres:16.0
+        restart: always
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_db_data:/var/lib/postgresql/data
+            # Diretório para manipulação de arquivos em geral (COPY)
+            - ./nifi/files/output/2MASS:/var/lib/postgresql/files/input
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+    adminer:
+        hostname: workshop-nifi-dia2-adminer
+        container_name: workshop-nifi-2-adminer-container
+        image: adminer
+        restart: always
+        ports:
+            - 8080:8080
+volumes:
+    nifi_conf:
+    nifi_state:
+    nifi_logs:
+    nifi_database_repository:
+    nifi_flowfile_repository:
+    nifi_content_repository:
+    nifi_provenance_repository:
+    nifi_nar:
+    postgres_db_data:
